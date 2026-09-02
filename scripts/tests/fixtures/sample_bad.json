@@ -1,0 +1,39 @@
+{
+  "project": "病态样例",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "12V 输出",
+      "source": "对话轮1",
+      "covered_by": "",
+      "verify_method": "负载测试",
+      "status": "confirmed"
+    },
+    {
+      "id": "REQ-1",
+      "text": "重复 id",
+      "source": "对话轮2",
+      "covered_by": "基线§3",
+      "verify_method": "目检",
+      "status": "confirmed"
+    }
+  ],
+  "power_tree": {
+    "inputs": [],
+    "rails": [
+      {
+        "id": "V12V0",
+        "voltage": 12,
+        "rated_imax": 4.0,
+        "source": "",
+        "loads": [
+          {"consumer": "负载", "current": 4.5}
+        ]
+      }
+    ],
+    "sequence": [
+      {"rail": "V9V9", "order": 1},
+      {"rail": "V12V0", "order": 3}
+    ]
+  }
+}

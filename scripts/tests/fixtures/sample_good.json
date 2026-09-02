@@ -1,0 +1,77 @@
+{
+  "project": "样例电源板",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "12V 输出 ≥3A",
+      "source": "对话轮1",
+      "covered_by": "基线§3",
+      "verify_method": "电子负载 3A 测纹波与跌落",
+      "status": "confirmed"
+    },
+    {
+      "id": "REQ-2",
+      "text": "反接保护",
+      "source": "文件:需求.txt:2",
+      "covered_by": "基线§3",
+      "verify_method": "反接 30s 不损坏",
+      "status": "confirmed"
+    },
+    {
+      "id": "REQ-3",
+      "text": "LED 状态指示",
+      "source": "对话轮2",
+      "covered_by": "",
+      "verify_method": "",
+      "status": "open"
+    }
+  ],
+  "power_tree": {
+    "inputs": [
+      {
+        "id": "VIN",
+        "name": "VIN_24",
+        "voltage": 24,
+        "tolerance_pct": 5,
+        "source": "外部适配器",
+        "imax": 5.0
+      }
+    ],
+    "rails": [
+      {
+        "id": "V12V0",
+        "voltage": 12,
+        "rated_imax": 4.0,
+        "source": "U1 buck",
+        "loads": [
+          {"consumer": "负载", "current": 3.0, "note": "实测 typ"}
+        ]
+      },
+      {
+        "id": "V5V0",
+        "voltage": 5,
+        "rated_imax": 2.0,
+        "source": "U2 buck",
+        "loads": [
+          {"consumer": "MCU", "current": 0.5},
+          {"consumer": "预留", "current": 0.4, "status": "assumed"}
+        ]
+      },
+      {
+        "id": "V3V3",
+        "voltage": 3.3,
+        "rated_imax": 1.0,
+        "source": "U3 LDO",
+        "loads": [
+          {"consumer": "外设", "current": 0.25},
+          {"consumer": "蓝牙峰值", "status": "open"}
+        ]
+      }
+    ],
+    "sequence": [
+      {"rail": "V12V0", "order": 1},
+      {"rail": "V5V0", "order": 2},
+      {"rail": "V3V3", "order": 3}
+    ]
+  }
+}
