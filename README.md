@@ -53,7 +53,7 @@ examples/                合成示例基线文档
 ## 安装
 
 ```bash
-git clone https://github.com/foxsheep1214/system-design-review.git \
+git clone https://github.com/wenqiiizwq-creator/system-design-review.git \
   ~/.agents/skills/system-design-review
 ```
 
