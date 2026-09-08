@@ -1,38 +1,17 @@
 #!/usr/bin/env bash
-# 一键重跑全部校验：语法编译 + 官方 quick_validate + 两个脚本的回归 fixture。
-# 首次使用：python3 -m venv .venv && .venv/bin/pip install pyyaml
 set -euo pipefail
-
 SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-VENV_PY="$SKILL_DIR/.venv/bin/python3"
+SKILL_PY="${SKILL_PYTHON:-python3}"
+if [[ -x "$SKILL_DIR/.venv/bin/python3" ]]; then SKILL_PY="$SKILL_DIR/.venv/bin/python3"; fi
+"$SKILL_PY" -m py_compile "$SKILL_DIR"/scripts/*.py
+"$SKILL_PY" -m unittest discover -s "$SKILL_DIR/scripts/tests" -v
+"$SKILL_PY" "$SKILL_DIR/scripts/check_requirements.py" "$SKILL_DIR/scripts/tests/fixtures/sample_good.json"
+"$SKILL_PY" "$SKILL_DIR/scripts/check_power_tree.py" "$SKILL_DIR/scripts/tests/fixtures/sample_good.json" --fail-on-warn
+"$SKILL_PY" "$SKILL_DIR/scripts/validate_design.py" "$SKILL_DIR/examples/design-intent-v2.json"
 VALIDATOR="${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/quick_validate.py"
-
-if [[ ! -x "$VENV_PY" ]]; then
-  echo "缺少 .venv：先在项目根目录执行 python3 -m venv .venv && .venv/bin/pip install pyyaml" >&2
-  exit 1
+if [[ -f "$VALIDATOR" ]] && "$SKILL_PY" -c 'import yaml' 2>/dev/null; then
+  "$SKILL_PY" "$VALIDATOR" "$SKILL_DIR"
+else
+  echo "SKIP: 官方 quick_validate/PyYAML 不可用；行为回归已运行，元数据校验未完成。"
 fi
-if [[ ! -f "$VALIDATOR" ]]; then
-  echo "找不到官方校验器: $VALIDATOR" >&2
-  exit 1
-fi
-
-"$VENV_PY" -m py_compile "$SKILL_DIR"/scripts/*.py
-"$VENV_PY" "$VALIDATOR" "$SKILL_DIR"
-
-"$VENV_PY" "$SKILL_DIR/scripts/check_requirements.py" \
-  "$SKILL_DIR/scripts/tests/fixtures/sample_good.json" >/dev/null
-"$VENV_PY" "$SKILL_DIR/scripts/check_power_tree.py" \
-  "$SKILL_DIR/scripts/tests/fixtures/sample_good.json" >/dev/null
-
-if "$VENV_PY" "$SKILL_DIR/scripts/check_requirements.py" \
-  "$SKILL_DIR/scripts/tests/fixtures/sample_bad.json" >/dev/null 2>&1; then
-  echo "FAIL: 病态 fixture 应当让 check_requirements 失败" >&2
-  exit 1
-fi
-if "$VENV_PY" "$SKILL_DIR/scripts/check_power_tree.py" \
-  "$SKILL_DIR/scripts/tests/fixtures/sample_bad.json" >/dev/null 2>&1; then
-  echo "FAIL: 病态 fixture 应当让 check_power_tree 失败" >&2
-  exit 1
-fi
-
-echo "全部校验通过（py_compile / quick_validate / 需求覆盖 / 电源树）"
+echo "本地行为与示例验证完成；不代表实际硬件方案通过。"

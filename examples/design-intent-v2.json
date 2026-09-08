@@ -1,0 +1,423 @@
+{
+  "schema_version": 2,
+  "project": "合成辅助电源示例（非真实电路）",
+  "baseline_version": "SYNTHETIC-1",
+  "product_variant": "fixture-only",
+  "package_routing": "DOCUMENT",
+  "sources": [
+    {
+      "id": "S1",
+      "locator": "synthetic-requirements.md",
+      "revision": "1",
+      "role": "requirement",
+      "read_status": "reviewed",
+      "required": true
+    },
+    {
+      "id": "S2",
+      "locator": "synthetic-device-model.md",
+      "revision": "1",
+      "role": "datasheet",
+      "read_status": "reviewed",
+      "required": true
+    },
+    {
+      "id": "S3",
+      "locator": "synthetic-confirmation.md",
+      "revision": "1",
+      "role": "conversation",
+      "read_status": "reviewed",
+      "required": true
+    }
+  ],
+  "evidence": [
+    {
+      "id": "E1",
+      "source_id": "S1",
+      "locator": "§1",
+      "claim": "合成目标：12V 输入下提供 5V/0.5A",
+      "kind": "intent",
+      "confidence": "B",
+      "status": "verified"
+    },
+    {
+      "id": "E2",
+      "source_id": "S2",
+      "locator": "§1–3",
+      "claim": "虚构模型：额定 5V/1A，效率假定为保证 80%；仅演示数据契约",
+      "kind": "constraint",
+      "confidence": "B",
+      "status": "verified"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "R1",
+      "text": "在输入 12V 条件下提供连续 5V/0.5A",
+      "source": "S1 §1",
+      "covered_by": "基线§3",
+      "verify_method": "合成验收条件：稳态输出 5V±5%，0.5A 连续带载",
+      "status": "confirmed",
+      "claim_kind": "intent",
+      "critical": true,
+      "evidence_ids": [
+        "E1"
+      ]
+    }
+  ],
+  "modules": [
+    {
+      "id": "M1",
+      "title": "辅助电源",
+      "evidence_ids": [
+        "E1",
+        "E2"
+      ]
+    }
+  ],
+  "components": [
+    {
+      "id": "U1",
+      "module_id": "M1",
+      "mpn": "SYNTHETIC-BUCK",
+      "variant": "fixture",
+      "identity_status": "confirmed",
+      "evidence_ids": [
+        "E2"
+      ]
+    }
+  ],
+  "interfaces": [
+    {
+      "id": "J1",
+      "module_id": "M1",
+      "protocol": "DC power",
+      "voltage_domain": "5V",
+      "resource": "V5 output",
+      "status": "confirmed",
+      "ends": [
+        {
+          "endpoint": "board",
+          "role": "source"
+        },
+        {
+          "endpoint": "load",
+          "role": "sink"
+        }
+      ],
+      "evidence_ids": [
+        "E1",
+        "E2"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "RUN",
+      "name": "规定输入下连续带载",
+      "behavior": "模型只涵盖受控输入稳态；真实项目必须扩充适用工况",
+      "critical": true,
+      "evidence_ids": [
+        "E1",
+        "E2"
+      ]
+    }
+  ],
+  "observations": [],
+  "decisions": [
+    {
+      "id": "D1",
+      "title": "保持合成拓扑",
+      "selected": "独立单向辅助电源",
+      "reason": "用于演示完整记录",
+      "impact": "未改目标",
+      "alternatives": [
+        "保持原方案；示例无实际优化意义"
+      ],
+      "status": "accepted",
+      "protected": true,
+      "evidence_ids": [
+        "E1",
+        "E2"
+      ]
+    }
+  ],
+  "power_tree": {
+    "min_margin_pct": 20,
+    "inputs": [
+      {
+        "id": "VIN",
+        "source": "受控外部源",
+        "voltage": 12,
+        "imax": 2,
+        "evidence_ids": [
+          "E1"
+        ]
+      }
+    ],
+    "rails": [
+      {
+        "id": "V5",
+        "source": "U1 buck",
+        "upstream_id": "VIN",
+        "voltage": 5,
+        "rated_imax": 1,
+        "efficiency": 0.8,
+        "evidence_ids": [
+          "E2"
+        ],
+        "loads": [
+          {
+            "consumer": "load",
+            "current": 0.5,
+            "status": "confirmed",
+            "evidence_ids": [
+              "E1"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "power_budgets": [
+    {
+      "id": "B1",
+      "scenario": "合成受控稳态",
+      "state_ids": [
+        "RUN"
+      ],
+      "input_ids": [
+        "VIN"
+      ],
+      "rail_ids": [
+        "V5"
+      ],
+      "calculation": "5V×0.5A/0.8=3.125W；12V 输入 0.261A < 2A；轨电流余量 50%。",
+      "assumptions": "数值为合成保证模型；不代表真实硬件启动、故障、热或保护性能。",
+      "evidence_ids": [
+        "E1",
+        "E2"
+      ],
+      "result": "PASS"
+    }
+  ],
+  "optimizations": [],
+  "optimization_summary": "合成契约样例，保留当前拓扑；真实工程必须评估可行备选和取舍。",
+  "review_plan": [
+    {
+      "id": "C0",
+      "layer": 0,
+      "subject_ids": [
+        "requirement:R1",
+        "module:M1",
+        "component:U1",
+        "interface:J1",
+        "state:RUN",
+        "decision:D1",
+        "input:VIN",
+        "rail:V5"
+      ],
+      "critical": true,
+      "applicability": "APPLICABLE"
+    },
+    {
+      "id": "C1",
+      "layer": 1,
+      "subject_ids": [
+        "module:M1"
+      ],
+      "critical": true,
+      "applicability": "APPLICABLE"
+    },
+    {
+      "id": "C2",
+      "layer": 2,
+      "subject_ids": [
+        "module:M1"
+      ],
+      "critical": true,
+      "applicability": "APPLICABLE"
+    },
+    {
+      "id": "C3",
+      "layer": 3,
+      "subject_ids": [
+        "module:M1"
+      ],
+      "critical": true,
+      "applicability": "APPLICABLE"
+    },
+    {
+      "id": "C4",
+      "layer": 4,
+      "subject_ids": [
+        "module:M1"
+      ],
+      "critical": true,
+      "applicability": "APPLICABLE"
+    },
+    {
+      "id": "C5",
+      "layer": 5,
+      "subject_ids": [
+        "module:M1"
+      ],
+      "critical": true,
+      "applicability": "APPLICABLE"
+    },
+    {
+      "id": "C6",
+      "layer": 6,
+      "subject_ids": [
+        "module:M1"
+      ],
+      "critical": true,
+      "applicability": "APPLICABLE"
+    },
+    {
+      "id": "C7",
+      "layer": 7,
+      "subject_ids": [
+        "module:M1"
+      ],
+      "critical": true,
+      "applicability": "APPLICABLE"
+    },
+    {
+      "id": "C8",
+      "layer": 8,
+      "subject_ids": [
+        "module:M1"
+      ],
+      "critical": true,
+      "applicability": "APPLICABLE"
+    },
+    {
+      "id": "C9",
+      "layer": 9,
+      "subject_ids": [
+        "module:M1"
+      ],
+      "critical": true,
+      "applicability": "APPLICABLE"
+    }
+  ],
+  "checks": [
+    {
+      "plan_id": "C0",
+      "result": "PASS",
+      "confidence": "B",
+      "evidence_ids": [
+        "E1",
+        "E2"
+      ],
+      "rationale": "第 0 层为合成字段演示；本样例不签真实板卡。"
+    },
+    {
+      "plan_id": "C1",
+      "result": "PASS",
+      "confidence": "B",
+      "evidence_ids": [
+        "E1",
+        "E2"
+      ],
+      "rationale": "第 1 层为合成字段演示；本样例不签真实板卡。"
+    },
+    {
+      "plan_id": "C2",
+      "result": "PASS",
+      "confidence": "B",
+      "evidence_ids": [
+        "E1",
+        "E2"
+      ],
+      "rationale": "第 2 层为合成字段演示；本样例不签真实板卡。"
+    },
+    {
+      "plan_id": "C3",
+      "result": "PASS",
+      "confidence": "B",
+      "evidence_ids": [
+        "E1",
+        "E2"
+      ],
+      "rationale": "第 3 层为合成字段演示；本样例不签真实板卡。"
+    },
+    {
+      "plan_id": "C4",
+      "result": "PASS",
+      "confidence": "B",
+      "evidence_ids": [
+        "E1",
+        "E2"
+      ],
+      "rationale": "第 4 层为合成字段演示；本样例不签真实板卡。"
+    },
+    {
+      "plan_id": "C5",
+      "result": "PASS",
+      "confidence": "B",
+      "evidence_ids": [
+        "E1",
+        "E2"
+      ],
+      "rationale": "第 5 层为合成字段演示；本样例不签真实板卡。"
+    },
+    {
+      "plan_id": "C6",
+      "result": "PASS",
+      "confidence": "B",
+      "evidence_ids": [
+        "E1",
+        "E2"
+      ],
+      "rationale": "第 6 层为合成字段演示；本样例不签真实板卡。"
+    },
+    {
+      "plan_id": "C7",
+      "result": "PASS",
+      "confidence": "B",
+      "evidence_ids": [
+        "E1",
+        "E2"
+      ],
+      "rationale": "第 7 层为合成字段演示；本样例不签真实板卡。"
+    },
+    {
+      "plan_id": "C8",
+      "result": "PASS",
+      "confidence": "B",
+      "evidence_ids": [
+        "E1",
+        "E2"
+      ],
+      "rationale": "第 8 层为合成字段演示；本样例不签真实板卡。"
+    },
+    {
+      "plan_id": "C9",
+      "result": "PASS",
+      "confidence": "B",
+      "evidence_ids": [
+        "E1",
+        "E2"
+      ],
+      "rationale": "第 9 层为合成字段演示；本样例不签真实板卡。"
+    }
+  ],
+  "open_issues": [],
+  "handoffs": [],
+  "approvals": [
+    {
+      "actor": "SYNTHETIC_ENGINEER（虚构）",
+      "source_id": "S3",
+      "locator": "§1 合成确认",
+      "baseline_version": "SYNTHETIC-1",
+      "scope": [
+        "requirement:R1",
+        "decision:D1"
+      ],
+      "content_digest": "5fe1d29e6a4a481ef8a567ef369d07322cee6d5d90529a38cb273679a5382771",
+      "decision": "accepted"
+    }
+  ]
+}

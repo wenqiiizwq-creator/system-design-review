@@ -1,4 +1,4 @@
 interface:
   display_name: "硬件系统级设计审查"
-  short_description: "方案设计 Agent：对话生成设计基线 + 系统级方案审查"
-  default_prompt: "Use $system-design-review to capture the design intent for this board and review the system-level design."
+  short_description: "从硬件资料包提取设计意图、审查优化系统方案并形成工程师确认的基线"
+  default_prompt: "Use $system-design-review to inspect this hardware package, reconstruct missing design intent, review and optimize the system proposal, and prepare a baseline for engineer confirmation."

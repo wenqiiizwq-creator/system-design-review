@@ -21,9 +21,9 @@
       "id": "REQ-3",
       "text": "LED 状态指示",
       "source": "对话轮2",
-      "covered_by": "基线§4",
-      "verify_method": "三种状态下观察 LED",
-      "status": "confirmed"
+      "covered_by": "",
+      "verify_method": "",
+      "status": "open"
     }
   ],
   "power_tree": {
@@ -64,7 +64,7 @@
           {
             "consumer": "预留",
             "current": 0.4,
-            "status": "confirmed"
+            "status": "assumed"
           }
         ]
       },
@@ -80,8 +80,7 @@
           },
           {
             "consumer": "蓝牙峰值",
-            "status": "confirmed",
-            "current": 0.1
+            "status": "open"
           }
         ]
       }

@@ -1,3 +1,5 @@
 __pycache__/
 *.pyc
 .venv/
+# Local engineering evidence and diagnostic work must not enter public releases.
+analysis-local-*/
